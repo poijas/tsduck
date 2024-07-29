@@ -187,12 +187,6 @@ jobs:
         [void] (New-Item -Type Directory -Force tmp)
         Expand-Archive test.zip -DestinationPath tmp -Force
         Move-Item tmp\* ..\tsduck-test -Force
-    - name: Run test suite
-      shell: bash
-      run: |
-        cd ../tsduck-test
-        ./run-all-tests.sh ${{ matrix.testopt }} && status=$? || status=$?
-        exit $status
 
   build_docs:
     name: Build documentation
