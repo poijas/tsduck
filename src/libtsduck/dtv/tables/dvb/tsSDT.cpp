@@ -357,19 +357,20 @@ void ts::SDT::ServiceEntry::setType(uint8_t service_type)
 void ts::SDT::DisplaySection(TablesDisplay& disp, const ts::Section& section, PSIBuffer& buf, const UString& margin)
 {
     disp << margin << UString::Format(u"Transport Stream Id: %n", section.tableIdExtension()) << std::endl;
-    disp << margin << UString::Format(u"Original Network Id: %n", buf.getUInt16()) << std::endl;
+    const uint16_t onetw_id = buf.getUInt16();
+    disp << margin << UString::Format(u"Original Network Id: %n(%s)", onetw_id, names::OriginalNetworkId(onetw_id)) << std::endl;
     buf.skipReservedBits(8);
 
     // Services description
     while (buf.canRead()) {
-        disp << margin << UString::Format(u"Service Id: %n", buf.getUInt16());
+        disp << margin << UString::Format(u"Service Id: %n", buf.getUInt16()) << std::endl;
         buf.skipReservedBits(6);
-        disp << ", EITs: " << UString::YesNo(buf.getBool());
-        disp << ", EITp/f: " << UString::YesNo(buf.getBool());
+        disp << margin << "  " << "eit_schedule_flag: " << buf.getBool() << std::endl;
+        disp << margin << "  " << "eit_present_following_flag: " << buf.getBool() << std::endl;
         const uint8_t running_status = buf.getBits<uint8_t>(3);
-        disp << ", CA mode: " << (buf.getBool() ? "controlled" : "free") << std::endl;
-        disp << margin << "Running status: " << names::RunningStatus(running_status) << std::endl;
-        disp.displayDescriptorListWithLength(section, buf, margin);
+        disp << margin << "  " << "CA mode: " << (buf.getBool() ? "controlled" : "free") << std::endl;
+        disp << margin << "  " << UString::Format(u"Running status: %n(%s)", running_status, names::RunningStatus(running_status)) << std::endl;
+        disp.displayDescriptorListWithLength(section, buf, margin + u"  ");
     }
 }
 
